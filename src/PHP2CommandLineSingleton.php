@@ -8,21 +8,22 @@
 
 namespace Sunnysideup\PHP2CommandLine;
 
-class PHP2CommandLineSingleton {
-
+class PHP2CommandLineSingleton
+{
     private static $_singleton;
 
     public static function create($logFileLocation = '')
     {
-        if(self::$_singleton === null) {
-            $className = self::getClass();
+        if (self::$_singleton === null) {
+            $className = get_called_class();
             self::$_singleton = new $className($logFileLocation);
         }
+
+        return self::$_singleton;
     }
 
     public static function delete()
     {
-        unset(self::$_singleton);
         self::$_singleton = null;
 
         return null;
@@ -34,19 +35,17 @@ class PHP2CommandLineSingleton {
      */
     protected $logFileLocation = '';
 
-    protected function setLogFileLocation($s)
+    public function setLogFileLocation($s)
     {
         $this->logFileLocation = $s;
 
         return $this;
     }
 
-    protected function getLogFileLocation()
+    public function getLogFileLocation()
     {
         return $this->logFileLocation;
     }
-
-    protected $runImmediately = null;
 
     /**
      * @var null|bool
@@ -61,21 +60,29 @@ class PHP2CommandLineSingleton {
     }
 
 
+    public function getRunImmediately($b)
+    {
+        return $this->runImmediately;
+    }
+
+
     /**
      *
      * @param string $logFileLocation
      */
-    function __construct($logFileLocation = ''){
+    public function __construct($logFileLocation = '')
+    {
         $this->logFileLocation = $logFileLocation;
         $this->startOutput();
     }
 
 
-    function __destruct() {
+    public function __destruct()
+    {
         $this->endOutput();
     }
 
-    public function execMe($newDir, $command, $comment, $alwaysRun = false)
+    public function execMe($currentDir, $command, $comment, $alwaysRun = false)
     {
         if ($this->runImmediately === null) {
             if ($this->isCommandLine()) {
@@ -84,7 +91,6 @@ class PHP2CommandLineSingleton {
                 $this->runImmediately = false;
             }
         }
-        $currentDir = $this->checkIfPathExistsAndCleanItUp($newDir);
 
         //we use && here because this means that the second part only runs
         //if the CD works.
@@ -144,7 +150,7 @@ class PHP2CommandLineSingleton {
     }
 
 
-    public function colourPrint($mixedVar, $colour, $newLineCount = 0)
+    public function colourPrint($mixedVar, $colour, $newLineCount = 1)
     {
         $mixedVarAsString = print_r($mixedVar, 1);
         $logFileLocation = $this->getLogFileLocation();
@@ -154,7 +160,7 @@ class PHP2CommandLineSingleton {
                 file_put_contents($this->getLogFileLocation(), date('Y-m-d h:i'));
                 file_put_contents($this->getLogFileLocation(), PHP_EOL.PHP_EOL, FILE_APPEND | LOCK_EX);
             } else {
-                if ($newLine) {
+                for ($i = 0; $i < $newLineCount; $i++) {
                     file_put_contents($this->getLogFileLocation(), PHP_EOL, FILE_APPEND | LOCK_EX);
                 }
             }
@@ -214,7 +220,7 @@ class PHP2CommandLineSingleton {
         }
         $outputString = "\033[" . $colour . "m".$mixedVarAsString."\033[0m";
         if ($newLineCount) {
-            $MetaUpgrader->newLine($newLineCount);
+            $this->newLine($newLineCount);
         }
         echo $outputString;
     }
@@ -314,19 +320,4 @@ class PHP2CommandLineSingleton {
             }
         }
     }
-
-
-    protected function checkIfPathExistsAndCleanItUp($path)
-    {
-        if ($this->runImmediately) {
-            $path = realpath($path);
-            if (! file_exists($path)) {
-                die('ERROR! Could not find: '.$path);
-            }
-        } else {
-            $path = str_replace('//', '/', $path);
-        }
-        return $path;
-    }
-
 }
