@@ -1,0 +1,24 @@
+{
+    "name": "sunnysideup/php_2_command_line",
+    "type": "silverstripe-module",
+    "description": "Runs a bash script using PHP",
+    "keywords": [
+        "command line",
+        "php",
+        "bash",
+        "script",
+        "cli"
+    ],
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Nicolaas Francken",
+            "email": "modules@sunnysideup.co.nz",
+            "role": "lead developer"
+        }
+    ],
+    "require": {
+    },
+    "suggest": {
+    }
+}
