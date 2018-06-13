@@ -60,9 +60,28 @@ class PHP2CommandLineSingleton
     }
 
 
-    public function getRunImmediately($b)
+    public function getRunImmediately()
     {
         return $this->runImmediately;
+    }
+
+
+    /**
+     * should the script stop if any error occurs?
+     * @var bool
+     */
+    protected $breakOnAllErrors = false;
+
+    public function getBreakOnAllErrors()
+    {
+        return $this->breakOnAllErrors;
+    }
+
+    public function setBreakOnAllErrors($b)
+    {
+        $this->breakOnAllErrors = $b;
+
+        return $this;
     }
 
 
@@ -138,7 +157,7 @@ class PHP2CommandLineSingleton
                     $this->newLine(1);
                     echo ' <i>✔</i>';
                 } else {
-                    $this->colourPrint(' ✔', 'green', false);
+                    $this->colourPrint('✔✔✔', 'green', 1);
                 }
                 $this->newLine(2);
             }
