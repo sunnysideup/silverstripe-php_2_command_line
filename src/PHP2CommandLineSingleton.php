@@ -169,7 +169,7 @@ class PHP2CommandLineSingleton
     }
 
 
-    public function colourPrint($mixedVar, $colour, $newLineCount = 1)
+    public function colourPrint($mixedVar, $colour = 'dark_gray', $newLineCount = 1)
     {
         $mixedVarAsString = print_r($mixedVar, 1);
         $logFileLocation = $this->getLogFileLocation();
