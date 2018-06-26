@@ -66,13 +66,13 @@ class PHP2CommandLineSingleton
      * If false then will output HTML version of a batch file for running this module
      * If true runs the module immediately
      * @var null|bool
-     * @return PHP2CommandLineSingleton
      *
      */
     protected $runImmediately = null;
 
     /**
      * @param bool
+     * @return PHP2CommandLineSingleton
      */
     public function setRunImmediately($b)
     {
