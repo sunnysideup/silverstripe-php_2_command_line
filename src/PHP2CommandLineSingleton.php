@@ -22,6 +22,10 @@ class PHP2CommandLineSingleton
         return self::$_singleton;
     }
 
+    /**
+     * Deletes the current singleton by setting it null
+     * @return null
+     */
     public static function delete()
     {
         self::$_singleton = null;
@@ -30,11 +34,17 @@ class PHP2CommandLineSingleton
     }
 
     /**
-     *
+     * Where will the log file be stored.
+     * The log file takes all output that is printed to console and saves it to a file
      * @var string
      */
     protected $logFileLocation = '';
 
+    /**
+     * Determine the location of the log file for writing all the printed output to
+     * @param string file location
+     * @return PHP2CommandLineSingleton
+     */
     public function setLogFileLocation($s)
     {
         $this->logFileLocation = $s;
@@ -42,16 +52,28 @@ class PHP2CommandLineSingleton
         return $this;
     }
 
+    /**
+     * See where the location of the log file for writing all the printed output to is
+     * @return PHP2CommandLineSingleton
+     */
     public function getLogFileLocation()
     {
         return $this->logFileLocation;
     }
 
     /**
+     *
+     * If false then will output HTML version of a batch file for running this module
+     * If true runs the module immediately
      * @var null|bool
+     * @return PHP2CommandLineSingleton
+     *
      */
     protected $runImmediately = null;
 
+    /**
+     * @param bool
+     */
     public function setRunImmediately($b)
     {
         $this->runImmediately = $b;
@@ -59,7 +81,9 @@ class PHP2CommandLineSingleton
         return $this;
     }
 
-
+    /**
+     * @return bool
+     */
     public function getRunImmediately()
     {
         return $this->runImmediately;
@@ -72,11 +96,17 @@ class PHP2CommandLineSingleton
      */
     protected $breakOnAllErrors = false;
 
+    /**
+     * @return bool
+     */
     public function getBreakOnAllErrors()
     {
         return $this->breakOnAllErrors;
     }
 
+    /**
+     * @param bool
+     */
     public function setBreakOnAllErrors($b)
     {
         $this->breakOnAllErrors = $b;
@@ -84,9 +114,8 @@ class PHP2CommandLineSingleton
         return $this;
     }
 
-
     /**
-     *
+     * Where to save the logfile to
      * @param string $logFileLocation
      */
     public function __construct($logFileLocation = '')
@@ -95,12 +124,22 @@ class PHP2CommandLineSingleton
         $this->startOutput();
     }
 
-
+    /**
+     * When program finishes execution end the output
+     */
     public function __destruct()
     {
         $this->endOutput();
     }
 
+    /**
+     * NICOLAAS?
+     * @param  string  $currentDir what directory is the command line currently in
+     * @param  [type]  $command    [description]
+     * @param  [type]  $comment    [description]
+     * @param  boolean $alwaysRun  [description]
+     * @return [type]              [description]
+     */
     public function execMe($currentDir, $command, $comment, $alwaysRun = false)
     {
         if ($this->runImmediately === null) {
@@ -112,7 +151,7 @@ class PHP2CommandLineSingleton
         }
 
         //we use && here because this means that the second part only runs
-        //if the CD works.
+        //if the changedir works.
         $command = 'cd '.$currentDir.' && '.$command;
         if ($this->isHTML()) {
             $this->newLine();
@@ -169,7 +208,15 @@ class PHP2CommandLineSingleton
     }
 
 
-    public function colourPrint($mixedVar, $colour = 'dark_gray', $newLineCount = 1)
+    /**
+     * echos out the resulting string after applying all parameters
+     * @todo add the ability to use colours like "warning", "notice", "error"
+     * @param  [type]  $mixedVar     [description]
+     * @param  string  $colour       that you wish the output to displayed as
+     * @param  integer $newLineCount amount of empty lines you want to appear before the next text is printed
+     * @return null
+     */
+    public function colourPrint($mixedVar, $colour = '', $newLineCount = 1)
     {
         $mixedVarAsString = print_r($mixedVar, 1);
         $logFileLocation = $this->getLogFileLocation();
@@ -190,9 +237,6 @@ class PHP2CommandLineSingleton
             case 'black':
                 $colour = '0;30';
                 break;
-            case 'dark_gray':
-                $colour = '1;30';
-                break;
             case 'blue':
                 $colour = '0;34';
                 break;
@@ -212,6 +256,7 @@ class PHP2CommandLineSingleton
                 $colour = '1;36';
                 break;
             case 'red':
+            case 'error':
                 $colour = '0;31';
                 break;
             case 'light_red':
@@ -227,15 +272,20 @@ class PHP2CommandLineSingleton
                 $colour = '0;33';
                 break;
             case 'yellow':
+            case 'warning':
                 $colour = '1;33';
                 break;
             case 'light_gray':
                 $colour = '0;37';
                 break;
             case 'white':
-            default:
+            case 'run':
                 $colour = '1;37';
                 break;
+            case 'dark_gray':
+            case: 'notice':
+            default:
+                $colour = '1;30';
         }
         $outputString = "\033[" . $colour . "m".$mixedVarAsString."\033[0m";
         if ($newLineCount) {
@@ -245,6 +295,9 @@ class PHP2CommandLineSingleton
     }
 
 
+    /**
+     * @return bool is output being printed to command line or to website
+     */
     protected function isCommandLine() : bool
     {
         if (php_sapi_name() == "cli") {
@@ -254,11 +307,17 @@ class PHP2CommandLineSingleton
         }
     }
 
+    /**
+     * @return bool is output being displayed as html rather than on the command line
+     */
     protected function isHTML() : bool
     {
         return $this->isCommandLine() ? false : true;
     }
 
+    /**
+     * For printing some fixed data to output at beginning of output before the dynamic data is printed to console or html
+     */
     protected function startOutput()
     {
         if ($this->isHTML()) {
@@ -295,7 +354,9 @@ class PHP2CommandLineSingleton
     }
 
 
-
+    /**
+     * For finishing off the programs output with some fixed output. Currently only used for closing off html at end of file.
+     */
     protected function endOutput()
     {
         if ($this->isHTML()) {
@@ -329,6 +390,12 @@ class PHP2CommandLineSingleton
         }
     }
 
+    /**
+     * Depending on if writing to command line or to browser as html, echo a line break or EOL (End of line)
+     *
+     * @param  integer $numberOfLines number of line breaks or end of lines to echo
+     * @return null only echos data doesnt return anything
+     */
     protected function newLine($numberOfLines = 1)
     {
         for ($i = 0; $i < $numberOfLines; $i++) {
