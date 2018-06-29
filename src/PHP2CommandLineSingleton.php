@@ -283,7 +283,7 @@ class PHP2CommandLineSingleton
                 $colour = '1;37';
                 break;
             case 'dark_gray':
-            case: 'notice':
+            case 'notice':
             default:
                 $colour = '1;30';
         }
