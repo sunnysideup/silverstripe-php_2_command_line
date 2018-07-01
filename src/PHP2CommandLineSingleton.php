@@ -133,11 +133,12 @@ class PHP2CommandLineSingleton
     }
 
     /**
-     * NICOLAAS?
+     *
      * @param  string  $currentDir what directory is the command line currently in
-     * @param  [type]  $command    [description]
-     * @param  [type]  $comment    [description]
-     * @param  boolean $alwaysRun  [description]
+     * @param  string  $command
+     * @param  string  $comment
+     * @param  bool $alwaysRun
+     *
      * @return [type]              [description]
      */
     public function execMe($currentDir, $command, $comment, $alwaysRun = false)
@@ -150,20 +151,22 @@ class PHP2CommandLineSingleton
             }
         }
 
-        //we use && here because this means that the second part only runs
-        //if the changedir works.
-        $command = 'cd '.$currentDir.' && '.$command;
+        $this->newLine(1);
+        //show comment ...
+        $this->colourPrint('# '.$comment, 'dark_gray');
         if ($this->isHTML()) {
-            $this->newLine();
-            echo '<strong># '.$comment .'</strong><br />';
             if ($this->runImmediately || $alwaysRun) {
                 //do nothing
             } else {
+                //show comment as print out when actually running it!!!
                 echo '<div style="color: transparent">tput setaf 33; echo " _____ : '.addslashes($comment) .'" ____ </div>';
             }
-        } else {
-            $this->colourPrint('# '.$comment, 'dark_gray');
         }
+
+        //show command ...
+        //we use && here because this means that the second part only runs
+        //if the changedir works.
+        $command = 'cd '.$currentDir.' && '.$command;
         $commandsExploded = explode('&&', $command);
         foreach ($commandsExploded as $commandInner) {
             $commandsExplodedInner = explode(';', $commandInner);
@@ -171,6 +174,8 @@ class PHP2CommandLineSingleton
                 $this->colourPrint(trim($commandInnerInner), 'white');
             }
         }
+
+        //run command ...
         if ($this->runImmediately || $alwaysRun) {
             $outcome = exec($command.'  2>&1 ', $error, $return);
             if ($return) {
@@ -192,12 +197,7 @@ class PHP2CommandLineSingleton
                 } else {
                     $this->colourPrint($error, 'blue');
                 }
-                if ($this->isHTML()) {
-                    $this->newLine(1);
-                    echo ' <i>✔</i>';
-                } else {
-                    $this->colourPrint('✔✔✔', 'green', 1);
-                }
+                $this->colourPrint('✔✔✔', 'green', 1);
                 $this->newLine(2);
             }
         }
@@ -222,72 +222,103 @@ class PHP2CommandLineSingleton
         $logFileLocation = $this->getLogFileLocation();
         //write to log
         if ($logFileLocation) {
+            //add date and time at the top
             if (! file_exists($this->getLogFileLocation())) {
                 file_put_contents($this->getLogFileLocation(), date('Y-m-d h:i'));
                 file_put_contents($this->getLogFileLocation(), PHP_EOL.PHP_EOL, FILE_APPEND | LOCK_EX);
             } else {
+                //add new lines
                 for ($i = 0; $i < $newLineCount; $i++) {
                     file_put_contents($this->getLogFileLocation(), PHP_EOL, FILE_APPEND | LOCK_EX);
                 }
             }
+            //add data ...
             file_put_contents($this->getLogFileLocation(), $mixedVarAsString, FILE_APPEND | LOCK_EX);
         }
-
+        $htmlColour = str_replace('_', '-', $colour);
         switch ($colour) {
             case 'black':
                 $colour = '0;30';
+                $htmlColour = 'black';
                 break;
             case 'blue':
                 $colour = '0;34';
+                $htmlColour = 'blue';
                 break;
             case 'light_blue':
                 $colour = '1;34';
+                $htmlColour = 'lightblue';
                 break;
             case 'green':
                 $colour = '0;32';
+                $htmlColour = 'green';
                 break;
             case 'light_green':
                 $colour = '1;32';
+                $htmlColour = 'lightgreen';
                 break;
             case 'cyan':
                 $colour = '0;36';
+                $htmlColour = 'cyan';
                 break;
             case 'light_cyan':
                 $colour = '1;36';
+                $htmlColour = 'lightcyan';
                 break;
             case 'red':
             case 'error':
                 $colour = '0;31';
+                $htmlColour = 'red';
                 break;
             case 'light_red':
                 $colour = '1;31';
+                $htmlColour = 'pink';
                 break;
             case 'purple':
                 $colour = '0;35';
+                $htmlColour = 'purple';
                 break;
             case 'light_purple':
                 $colour = '1;35';
+                $htmlColour = 'violet';
                 break;
             case 'brown':
                 $colour = '0;33';
+                $htmlColour = 'brown';
                 break;
             case 'yellow':
             case 'warning':
                 $colour = '1;33';
+                $htmlColour = 'yellow';
                 break;
             case 'light_gray':
                 $colour = '0;37';
+                $htmlColour = '#999';
                 break;
             case 'white':
             case 'run':
                 $colour = '1;37';
+                $htmlColour = 'white';
                 break;
             case 'dark_gray':
             case 'notice':
             default:
                 $colour = '1;30';
+                $htmlColour = '#555';
         }
-        $outputString = "\033[" . $colour . "m".$mixedVarAsString."\033[0m";
+        if($this->isCommandLine()) {
+            $outputString = "\033[" . $colour . "m".$mixedVarAsString."\033[0m";
+        } else {
+            $colourString = 'style="color: '.$htmlColour.'"';
+            if($newLineCount === 0) {
+                $el = 'span';
+            } else {
+                //div is a new line in its own right ...
+                $newLineCount--;
+                $el = 'div';
+            }
+            $outputString = '<'.$el.' '.$colourString.'>'.$mixedmixedVarAsString.'</'.$el.'>';
+        }
         if ($newLineCount) {
             $this->newLine($newLineCount);
         }
