@@ -1,6 +1,6 @@
 {
     "name": "sunnysideup/php_2_command_line",
-    "type": "silverstripe-module",
+    "type": "library",
     "description": "Runs a bash script using PHP",
     "keywords": [
         "command line",
