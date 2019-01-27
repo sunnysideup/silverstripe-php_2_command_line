@@ -278,6 +278,7 @@ class PHP2CommandLineSingleton
                 $colour = '0;35';
                 $htmlColour = 'purple';
                 break;
+            case 'run':
             case 'light_purple':
                 $colour = '1;35';
                 $htmlColour = 'violet';
@@ -291,7 +292,6 @@ class PHP2CommandLineSingleton
                 $colour = '1;33';
                 $htmlColour = 'yellow';
                 break;
-            case 'run':
             case 'light_gray':
                 $colour = '0;37';
                 $htmlColour = '#999';
