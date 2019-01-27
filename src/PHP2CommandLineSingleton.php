@@ -171,7 +171,7 @@ class PHP2CommandLineSingleton
         foreach ($commandsExploded as $commandInner) {
             $commandsExplodedInner = explode(';', $commandInner);
             foreach ($commandsExplodedInner as $commandInnerInner) {
-                $this->colourPrint(trim($commandInnerInner), 'white');
+                $this->colourPrint(trim($commandInnerInner), 'run');
             }
         }
 
@@ -291,12 +291,12 @@ class PHP2CommandLineSingleton
                 $colour = '1;33';
                 $htmlColour = 'yellow';
                 break;
+            case 'run':
             case 'light_gray':
                 $colour = '0;37';
                 $htmlColour = '#999';
                 break;
             case 'white':
-            case 'run':
                 $colour = '1;37';
                 $htmlColour = 'white';
                 break;
