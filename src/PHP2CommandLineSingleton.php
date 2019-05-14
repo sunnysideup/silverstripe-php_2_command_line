@@ -85,7 +85,7 @@ class PHP2CommandLineSingleton
      * set key notes files location
      * @return string $s file location
      */
-    public function getKeyNotesFileLocation($s)
+    public function getKeyNotesFileLocation()
     {
         return $this->keyNotesFileLocation;
 
