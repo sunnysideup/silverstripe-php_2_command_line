@@ -40,9 +40,10 @@ class PHP2CommandLineSingleton
      */
     protected $logFileLocation = '';
 
+
     /**
      * Determine the location of the log file for writing all the printed output to
-     * @param string file location
+     * @param string $s file location
      * @return PHP2CommandLineSingleton
      */
     public function setLogFileLocation($s)
@@ -52,13 +53,60 @@ class PHP2CommandLineSingleton
         return $this;
     }
 
+
     /**
      * See where the location of the log file for writing all the printed output to is
-     * @return PHP2CommandLineSingleton
+     * @return string
      */
     public function getLogFileLocation()
     {
         return $this->logFileLocation;
+    }
+
+    /**
+     * Where will the key notes file be stored.
+     * @var string
+     */
+    protected $keyNotesFileLocation = '';
+
+
+    /**
+     * set key notes files location
+     * @param string $s file location
+     * @return PHP2CommandLineSingleton
+     */
+    public function setKeyNotesFileLocation($s)
+    {
+        $this->keyNotesFileLocation = $s;
+
+        return $this;
+    }
+    /**
+     * set key notes files location
+     * @return string $s file location
+     */
+    public function getKeyNotesFileLocation($s)
+    {
+        return $this->keyNotesFileLocation;
+
+    }
+
+    /**
+     *
+     * @var bool
+     */
+    protected $makeKeyNotes = false;
+
+    /**
+     * set key notes files location
+     * @param bool $b
+     * @return PHP2CommandLineSingleton
+     */
+    public function setMakeKeyNotes($b)
+    {
+        $this->makeKeyNotes = $b;
+
+        return $this;
     }
 
     /**
@@ -71,7 +119,7 @@ class PHP2CommandLineSingleton
     protected $runImmediately = null;
 
     /**
-     * @param bool
+     * @param bool $b
      * @return PHP2CommandLineSingleton
      */
     public function setRunImmediately($b)
@@ -105,7 +153,9 @@ class PHP2CommandLineSingleton
     }
 
     /**
-     * @param bool
+     * @param bool $b
+     *
+     * @return PHP2CommandLineSingleton
      */
     public function setBreakOnAllErrors($b)
     {
@@ -222,18 +272,11 @@ class PHP2CommandLineSingleton
         $logFileLocation = $this->getLogFileLocation();
         //write to log
         if ($logFileLocation) {
-            //add date and time at the top
-            if (! file_exists($this->getLogFileLocation())) {
-                file_put_contents($this->getLogFileLocation(), date('Y-m-d h:i'));
-                file_put_contents($this->getLogFileLocation(), PHP_EOL.PHP_EOL, FILE_APPEND | LOCK_EX);
-            } else {
-                //add new lines
-                for ($i = 0; $i < $newLineCount; $i++) {
-                    file_put_contents($this->getLogFileLocation(), PHP_EOL, FILE_APPEND | LOCK_EX);
-                }
-            }
-            //add data ...
-            file_put_contents($this->getLogFileLocation(), $mixedVarAsString, FILE_APPEND | LOCK_EX);
+            $this->writeToFile($logFileLocation, $mixedVarAsString);
+        }
+        $keyNotesFileLocation = $this->getKeyNotesFileLocation();
+        if ($keyNotesFileLocation && $this->makeKeyNotes) {
+            $this->writeToFile($keyNotesFileLocation, $mixedVarAsString);
         }
         $htmlColour = str_replace('_', '-', $colour);
         switch ($colour) {
@@ -325,6 +368,21 @@ class PHP2CommandLineSingleton
         echo $outputString;
     }
 
+
+    protected function writeToFile($fileName, $data)
+    {
+        if (! file_exists($fileName)) {
+            file_put_contents($fileName, date('Y-m-d h:i'));
+            file_put_contents($fileName, PHP_EOL.PHP_EOL, FILE_APPEND | LOCK_EX);
+        } else {
+            //add new lines
+            for ($i = 0; $i < $newLineCount; $i++) {
+                file_put_contents($fileName, PHP_EOL, FILE_APPEND | LOCK_EX);
+            }
+        }
+        //add data ...
+        file_put_contents($fileName, $data, FILE_APPEND | LOCK_EX);
+    }
 
     /**
      * @return bool is output being printed to command line or to website
