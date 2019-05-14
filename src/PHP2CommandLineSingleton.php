@@ -272,11 +272,11 @@ class PHP2CommandLineSingleton
         $logFileLocation = $this->getLogFileLocation();
         //write to log
         if ($logFileLocation) {
-            $this->writeToFile($logFileLocation, $mixedVarAsString);
+            $this->writeToFile($logFileLocation, $mixedVarAsString, $newLineCount);
         }
         $keyNotesFileLocation = $this->getKeyNotesFileLocation();
         if ($keyNotesFileLocation && $this->makeKeyNotes) {
-            $this->writeToFile($keyNotesFileLocation, $mixedVarAsString);
+            $this->writeToFile($keyNotesFileLocation, $mixedVarAsString, $newLineCount);
         }
         $htmlColour = str_replace('_', '-', $colour);
         switch ($colour) {
@@ -369,7 +369,7 @@ class PHP2CommandLineSingleton
     }
 
 
-    protected function writeToFile($fileName, $data)
+    protected function writeToFile($fileName, $data, $newLineCount)
     {
         if (! file_exists($fileName)) {
             file_put_contents($fileName, date('Y-m-d h:i'));
