@@ -266,7 +266,7 @@ class PHP2CommandLineSingleton
      * @param  integer $newLineCount amount of empty lines you want to appear before the next text is printed
      * @return null
      */
-    public function colourPrint($mixedVar, $colour = '', $newLineCount = 1)
+    public function colourPrint($mixedVar, $colour = 'dark_gray', $newLineCount = 1)
     {
         $mixedVarAsString = print_r($mixedVar, 1);
         $logFileLocation = $this->getLogFileLocation();
