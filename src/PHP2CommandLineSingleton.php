@@ -373,7 +373,9 @@ class PHP2CommandLineSingleton
     {
         if (! file_exists($fileName)) {
             $folder = dirname($fileName);
-            mkdir($folder, 0777, true);
+            if(! file_exists($folder)) {
+                mkdir($folder, 0777, true);
+            }
             file_put_contents($fileName, date('Y-m-d h:i'));
             file_put_contents($fileName, PHP_EOL.PHP_EOL, FILE_APPEND | LOCK_EX);
         } else {
