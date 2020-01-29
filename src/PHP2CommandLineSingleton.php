@@ -189,9 +189,9 @@ class PHP2CommandLineSingleton
      * @param  string  $comment
      * @param  bool $alwaysRun
      *
-     * @return [type]              [description]
+     * @return array
      */
-    public function execMe($currentDir, $command, $comment, $alwaysRun = false)
+    public function execMe($currentDir, $command, $comment, $alwaysRun = false) : array
     {
         if ($this->runImmediately === null) {
             if ($this->isCommandLine()) {
@@ -227,9 +227,9 @@ class PHP2CommandLineSingleton
 
         //run command ...
         if ($this->runImmediately || $alwaysRun) {
-            $outcome = exec($command.'  2>&1 ', $error, $return);
+            $outcome = exec($command.'  2>&1 ', $returnDetails, $return);
             if ($return) {
-                $this->colourPrint($error, 'red');
+                $this->colourPrint($returnDetails, 'red');
                 if ($this->breakOnAllErrors) {
                     $this->endOutput();
                     $this->newLine(10);
@@ -240,12 +240,12 @@ class PHP2CommandLineSingleton
                 if ($outcome) {
                     $this->colourPrint($outcome, 'green');
                 }
-                if (is_array($error)) {
-                    foreach ($error as $line) {
+                if (is_array($returnDetails)) {
+                    foreach ($returnDetails as $line) {
                         $this->colourPrint($line, 'blue');
                     }
                 } else {
-                    $this->colourPrint($error, 'blue');
+                    $this->colourPrint($returnDetails, 'blue');
                 }
                 $this->colourPrint('✔✔✔', 'green', 1);
                 $this->newLine(2);
@@ -255,6 +255,11 @@ class PHP2CommandLineSingleton
             ob_flush();
             flush();
         }
+        if(! is_array($returnDetails)) {
+            $returnDetails = [$returnDetails];
+        }
+
+        return $returnDetails;
     }
 
 
