@@ -216,7 +216,7 @@ class PHP2CommandLineSingleton
         //show command ...
         //we use && here because this means that the second part only runs
         //if the changedir works.
-        $command = 'cd '.$currentDir.' && '.$command;
+        $this->colourPrint('cd '.$currentDir, 'run');
         $commandsExploded = explode('&&', $command);
         foreach ($commandsExploded as $commandInner) {
             $commandsExplodedInner = explode(';', $commandInner);
@@ -227,6 +227,8 @@ class PHP2CommandLineSingleton
 
         //run command ...
         if ($this->runImmediately || $alwaysRun) {
+            $beforeDir = getcwd();
+            chdir($currentDir);
             $outcome = exec($command.'  2>&1 ', $returnDetails, $return);
             if ($return) {
                 $this->colourPrint($returnDetails, 'red');
@@ -250,6 +252,7 @@ class PHP2CommandLineSingleton
                 $this->colourPrint('✔✔✔', 'green', 1);
                 $this->newLine(2);
             }
+            chdir($beforeDir);
         }
         if ($this->isHTML()) {
             ob_flush();
