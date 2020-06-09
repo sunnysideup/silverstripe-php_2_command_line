@@ -113,6 +113,7 @@ class PHP2CommandLineSingleton
      *
      * If false then will output HTML version of a batch file for running this module
      * If true runs the module immediately
+     * If null, it will not override other settings. 
      * @var null|bool
      *
      */
