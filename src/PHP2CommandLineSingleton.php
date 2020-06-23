@@ -10,9 +10,59 @@ namespace Sunnysideup\PHP2CommandLine;
 
 class PHP2CommandLineSingleton
 {
+    /**
+     * Where will the log file be stored.
+     * The log file takes all output that is printed to console and saves it to a file
+     * @var string
+     */
+    protected $logFileLocation = '';
+
+    /**
+     * Where will the key notes file be stored.
+     * @var string
+     */
+    protected $keyNotesFileLocation = '';
+
+    /**
+     * @var bool
+     */
+    protected $makeKeyNotes = false;
+
+    /**
+     * If false then will output HTML version of a batch file for running this module
+     * If true runs the module immediately
+     * If null, it will not override other settings.
+     * @var bool|null
+     */
+    protected $runImmediately = null;
+
+    /**
+     * should the script stop if any error occurs?
+     * @var bool
+     */
+    protected $breakOnAllErrors = false;
+
     private static $_singleton;
 
-    public static function create($logFileLocation = '')
+    /**
+     * Where to save the logfile to
+     * @param string $logFileLocation
+     */
+    public function __construct(?string $logFileLocation = '')
+    {
+        $this->logFileLocation = $logFileLocation;
+        $this->startOutput();
+    }
+
+    /**
+     * When program finishes execution end the output
+     */
+    public function __destruct()
+    {
+        $this->endOutput();
+    }
+
+    public static function create(?string $logFileLocation = '')
     {
         if (self::$_singleton === null) {
             $className = get_called_class();
@@ -24,7 +74,6 @@ class PHP2CommandLineSingleton
 
     /**
      * Deletes the current singleton by setting it null
-     * @return null
      */
     public static function delete()
     {
@@ -34,25 +83,16 @@ class PHP2CommandLineSingleton
     }
 
     /**
-     * Where will the log file be stored.
-     * The log file takes all output that is printed to console and saves it to a file
-     * @var string
-     */
-    protected $logFileLocation = '';
-
-
-    /**
      * Determine the location of the log file for writing all the printed output to
      * @param string $s file location
      * @return PHP2CommandLineSingleton
      */
-    public function setLogFileLocation($s)
+    public function setLogFileLocation(string $s)
     {
         $this->logFileLocation = $s;
 
         return $this;
     }
-
 
     /**
      * See where the location of the log file for writing all the printed output to is
@@ -64,60 +104,37 @@ class PHP2CommandLineSingleton
     }
 
     /**
-     * Where will the key notes file be stored.
-     * @var string
-     */
-    protected $keyNotesFileLocation = '';
-
-
-    /**
      * set key notes files location
      * @param string $s file location
      * @return PHP2CommandLineSingleton
      */
-    public function setKeyNotesFileLocation($s)
+    public function setKeyNotesFileLocation(string $s)
     {
         $this->keyNotesFileLocation = $s;
 
         return $this;
     }
+
     /**
      * set key notes files location
-     * @return string $s file location
+     * @return string file location
      */
     public function getKeyNotesFileLocation()
     {
         return $this->keyNotesFileLocation;
-
     }
-
-    /**
-     *
-     * @var bool
-     */
-    protected $makeKeyNotes = false;
 
     /**
      * set key notes files location
      * @param bool $b
      * @return PHP2CommandLineSingleton
      */
-    public function setMakeKeyNotes($b)
+    public function setMakeKeyNotes(bool $b)
     {
         $this->makeKeyNotes = $b;
 
         return $this;
     }
-
-    /**
-     *
-     * If false then will output HTML version of a batch file for running this module
-     * If true runs the module immediately
-     * If null, it will not override other settings. 
-     * @var null|bool
-     *
-     */
-    protected $runImmediately = null;
 
     /**
      * @param bool $b
@@ -137,13 +154,6 @@ class PHP2CommandLineSingleton
     {
         return $this->runImmediately;
     }
-
-
-    /**
-     * should the script stop if any error occurs?
-     * @var bool
-     */
-    protected $breakOnAllErrors = false;
 
     /**
      * @return bool
@@ -166,34 +176,17 @@ class PHP2CommandLineSingleton
     }
 
     /**
-     * Where to save the logfile to
-     * @param string $logFileLocation
-     */
-    public function __construct($logFileLocation = '')
-    {
-        $this->logFileLocation = $logFileLocation;
-        $this->startOutput();
-    }
-
-    /**
-     * When program finishes execution end the output
-     */
-    public function __destruct()
-    {
-        $this->endOutput();
-    }
-
-    /**
-     *
      * @param  string  $currentDir what directory is the command line currently in
      * @param  string  $command
      * @param  string  $comment
      * @param  bool $alwaysRun
+     * @param  bool $verbose
      *
      * @return array
      */
-    public function execMe($currentDir, $command, $comment, $alwaysRun = false) : array
+    public function execMe(string $currentDir, string $command, string $comment, ?bool $alwaysRun = false, ?bool $verbose = true): array
     {
+        $this->verbose = $verbose;
         if ($this->runImmediately === null) {
             if ($this->isCommandLine()) {
                 $this->runImmediately = true;
@@ -204,20 +197,20 @@ class PHP2CommandLineSingleton
 
         $this->newLine(1);
         //show comment ...
-        $this->colourPrint('# '.$comment, 'dark_gray');
+        $this->colourPrint('# ' . $comment, 'dark_gray');
         if ($this->isHTML()) {
             if ($this->runImmediately || $alwaysRun) {
                 //do nothing
             } else {
                 //show comment as print out when actually running it!!!
-                echo '<div style="color: transparent">tput setaf 33; echo " _____ : '.addslashes($comment) .'" ____ </div>';
+                echo '<div style="color: transparent">tput setaf 33; echo " _____ : ' . addslashes($comment) . '" ____ </div>';
             }
         }
 
         //show command ...
         //we use && here because this means that the second part only runs
         //if the changedir works.
-        $this->colourPrint('cd '.$currentDir, 'run');
+        $this->colourPrint('cd ' . $currentDir, 'run');
         $commandsExploded = explode('&&', $command);
         foreach ($commandsExploded as $commandInner) {
             $commandsExplodedInner = explode(';', $commandInner);
@@ -230,7 +223,7 @@ class PHP2CommandLineSingleton
         if ($this->runImmediately || $alwaysRun) {
             $beforeDir = getcwd();
             chdir($currentDir);
-            $outcome = exec($command.'  2>&1 ', $returnDetails, $return);
+            $outcome = exec($command . '  2>&1 ', $returnDetails, $return);
             if ($return) {
                 $this->colourPrint($returnDetails, 'red');
                 if ($this->breakOnAllErrors) {
@@ -259,13 +252,12 @@ class PHP2CommandLineSingleton
             ob_flush();
             flush();
         }
-        if(! is_array($returnDetails)) {
+        if (! is_array($returnDetails)) {
             $returnDetails = [$returnDetails];
         }
 
         return $returnDetails;
     }
-
 
     /**
      * echos out the resulting string after applying all parameters
@@ -273,9 +265,36 @@ class PHP2CommandLineSingleton
      * @param  [type]  $mixedVar     [description]
      * @param  string  $colour       that you wish the output to displayed as
      * @param  integer $newLineCount amount of empty lines you want to appear before the next text is printed
-     * @return null
      */
     public function colourPrint($mixedVar, $colour = 'dark_gray', $newLineCount = 1)
+    {
+        $alwaysPrint = $this->isError($colour);
+
+        if ($this->isCommandLine()) {
+            $colour = $this->getColour($colour, false);
+            $outputString = "\033[" . $colour . 'm' . $mixedVarAsString . "\033[0m";
+        } else {
+            $colour = $this->getColour($colour, true);
+            $colourString = 'style="color: ' . $colour . '"';
+            if ($newLineCount === 0) {
+                $el = 'span';
+            } else {
+                //div is a new line in its own right ...
+                $newLineCount--;
+                $el = 'div';
+            }
+            $outputString = '<' . $el . ' ' . $colourString . '>' . $mixedmixedVarAsString . '</' . $el . '>';
+        }
+        if ($newLineCount) {
+            $this->newLine($newLineCount);
+        }
+        if ($this->verbose || $alwaysPrint) {
+            $this->writeToLog($mixedVar, $newLineCount);
+            echo $outputString;
+        }
+    }
+
+    protected function writeToLog($mixedVar, int $newLineCount)
     {
         $mixedVarAsString = print_r($mixedVar, 1);
         $logFileLocation = $this->getLogFileLocation();
@@ -287,106 +306,17 @@ class PHP2CommandLineSingleton
         if ($keyNotesFileLocation && $this->makeKeyNotes) {
             $this->writeToFile($keyNotesFileLocation, $mixedVarAsString, $newLineCount);
         }
-        $htmlColour = str_replace('_', '-', $colour);
-        switch ($colour) {
-            case 'black':
-                $colour = '0;30';
-                $htmlColour = 'black';
-                break;
-            case 'blue':
-                $colour = '0;34';
-                $htmlColour = 'blue';
-                break;
-            case 'light_blue':
-                $colour = '1;34';
-                $htmlColour = 'lightblue';
-                break;
-            case 'green':
-                $colour = '0;32';
-                $htmlColour = 'green';
-                break;
-            case 'light_green':
-                $colour = '1;32';
-                $htmlColour = 'lightgreen';
-                break;
-            case 'cyan':
-                $colour = '0;36';
-                $htmlColour = 'cyan';
-                break;
-            case 'light_cyan':
-                $colour = '1;36';
-                $htmlColour = 'lightcyan';
-                break;
-            case 'red':
-            case 'error':
-                $colour = '0;31';
-                $htmlColour = 'red';
-                break;
-            case 'light_red':
-                $colour = '1;31';
-                $htmlColour = 'pink';
-                break;
-            case 'purple':
-                $colour = '0;35';
-                $htmlColour = 'purple';
-                break;
-            case 'run':
-            case 'light_purple':
-                $colour = '1;35';
-                $htmlColour = 'violet';
-                break;
-            case 'brown':
-                $colour = '0;33';
-                $htmlColour = 'brown';
-                break;
-            case 'yellow':
-            case 'warning':
-                $colour = '1;33';
-                $htmlColour = 'yellow';
-                break;
-            case 'light_gray':
-                $colour = '0;37';
-                $htmlColour = '#999';
-                break;
-            case 'white':
-                $colour = '1;37';
-                $htmlColour = 'white';
-                break;
-            case 'dark_gray':
-            case 'notice':
-            default:
-                $colour = '1;30';
-                $htmlColour = '#555';
-        }
-        if($this->isCommandLine()) {
-            $outputString = "\033[" . $colour . "m".$mixedVarAsString."\033[0m";
-        } else {
-            $colourString = 'style="color: '.$htmlColour.'"';
-            if($newLineCount === 0) {
-                $el = 'span';
-            } else {
-                //div is a new line in its own right ...
-                $newLineCount--;
-                $el = 'div';
-            }
-            $outputString = '<'.$el.' '.$colourString.'>'.$mixedmixedVarAsString.'</'.$el.'>';
-        }
-        if ($newLineCount) {
-            $this->newLine($newLineCount);
-        }
-        echo $outputString;
     }
-
 
     protected function writeToFile($fileName, $data, $newLineCount)
     {
         if (! file_exists($fileName)) {
             $folder = dirname($fileName);
-            if(! file_exists($folder)) {
+            if (! file_exists($folder)) {
                 mkdir($folder, 0777, true);
             }
             file_put_contents($fileName, date('Y-m-d h:i'));
-            file_put_contents($fileName, PHP_EOL.PHP_EOL, FILE_APPEND | LOCK_EX);
+            file_put_contents($fileName, PHP_EOL . PHP_EOL, FILE_APPEND | LOCK_EX);
         } else {
             //add new lines
             for ($i = 0; $i < $newLineCount; $i++) {
@@ -400,19 +330,18 @@ class PHP2CommandLineSingleton
     /**
      * @return bool is output being printed to command line or to website
      */
-    protected function isCommandLine() : bool
+    protected function isCommandLine(): bool
     {
-        if (php_sapi_name() == "cli") {
+        if (PHP_SAPI === 'cli') {
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
      * @return bool is output being displayed as html rather than on the command line
      */
-    protected function isHTML() : bool
+    protected function isHTML(): bool
     {
         return $this->isCommandLine() ? false : true;
     }
@@ -455,14 +384,13 @@ class PHP2CommandLineSingleton
         }
     }
 
-
     /**
      * For finishing off the programs output with some fixed output. Currently only used for closing off html at end of file.
      */
     protected function endOutput()
     {
         if ($this->isHTML()) {
-            $dir = dirname(dirname(__FILE__));
+            // $dir = dirname(dirname(__FILE__));
             // $css = file_get_contents($dir.'/javascript/styles/default.css');
             // $js = file_get_contents($dir.'/javascript/highlight.pack.js');
             echo '
@@ -491,9 +419,8 @@ class PHP2CommandLineSingleton
      * Depending on if writing to command line or to browser as html, echo a line break or EOL (End of line)
      *
      * @param  integer $numberOfLines number of line breaks or end of lines to echo
-     * @return null only echos data doesnt return anything
      */
-    protected function newLine($numberOfLines = 1)
+    protected function newLine(?int $numberOfLines = 1)
     {
         for ($i = 0; $i < $numberOfLines; $i++) {
             if ($this->isCommandLine()) {
@@ -501,6 +428,87 @@ class PHP2CommandLineSingleton
             } else {
                 echo '<br />';
             }
+        }
+    }
+
+    protected function getColour(string $colour, ?bool $usehtmlColour = false)
+    {
+        $htmlColour = str_replace('_', '', $colour);
+        $htmlColour = str_replace('-', '', $htmlColour);
+        switch ($colour) {
+            case 'black':
+                $colour = '0;30';
+                break;
+            case 'blue':
+                $colour = '0;34';
+                break;
+            case 'light_blue':
+                $colour = '1;34';
+                break;
+            case 'green':
+                $colour = '0;32';
+                break;
+            case 'light_green':
+                $colour = '1;32';
+                break;
+            case 'cyan':
+                $colour = '0;36';
+                break;
+            case 'light_cyan':
+                $colour = '1;36';
+                break;
+            case 'red':
+            case 'error':
+                $colour = '0;31';
+                $htmlColour = 'red';
+                break;
+            case 'light_red':
+                $colour = '1;31';
+                $htmlColour = 'pink';
+                break;
+            case 'purple':
+                $colour = '0;35';
+                break;
+            case 'run':
+            case 'light_purple':
+                $colour = '1;35';
+                $htmlColour = 'violet';
+                break;
+            case 'brown':
+                $colour = '0;33';
+                break;
+            case 'yellow':
+            case 'warning':
+                $colour = '1;33';
+                $htmlColour = 'yellow';
+                break;
+            case 'light_gray':
+                $colour = '0;37';
+                $htmlColour = '#999';
+                break;
+            case 'white':
+                $colour = '1;37';
+                break;
+            case 'dark_gray':
+            case 'notice':
+            default:
+                $colour = '1;30';
+                $htmlColour = '#555';
+        }
+        if ($usehtmlColour) {
+            return $htmlColour;
+        }
+        return $colour;
+    }
+
+    protected function isError(string $colour): bool
+    {
+        switch ($colour) {
+            case 'red':
+            case 'error':
+                return true;
+            default:
+                return false;
         }
     }
 }
