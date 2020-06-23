@@ -452,11 +452,6 @@ class PHP2CommandLineSingleton
             $dir = dirname(dirname(__FILE__));
             // $css = file_get_contents($dir.'/javascript/styles/default.css');
             // $js = file_get_contents($dir.'/javascript/highlight.pack.js');
-            // echo '</code></pre>
-            // <script>
-            //     '.$js.'
-            //     hljs.initHighlightingOnLoad();
-            // </script>
             echo '
             <style>
                 html, body {padding: 0; margin: 0; min-height: 100%; height: 100%; background-color: #300a24;color: #fff;}
