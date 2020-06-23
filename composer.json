@@ -17,9 +17,9 @@
             "role": "lead developer"
         }
     ],
-      "autoload": {
-          "psr-4": {
-              "Sunnysideup\\PHP2CommandLine\\": "src/"
-          }
+    "autoload": {
+      "psr-4": {
+        "Sunnysideup\\PHP2CommandLine\\":"src/"
       }
+    }
 }

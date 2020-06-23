@@ -113,6 +113,7 @@ class PHP2CommandLineSingleton
      *
      * If false then will output HTML version of a batch file for running this module
      * If true runs the module immediately
+     * If null, it will not override other settings. 
      * @var null|bool
      *
      */
@@ -189,9 +190,9 @@ class PHP2CommandLineSingleton
      * @param  string  $comment
      * @param  bool $alwaysRun
      *
-     * @return [type]              [description]
+     * @return array
      */
-    public function execMe($currentDir, $command, $comment, $alwaysRun = false)
+    public function execMe($currentDir, $command, $comment, $alwaysRun = false) : array
     {
         if ($this->runImmediately === null) {
             if ($this->isCommandLine()) {
@@ -216,7 +217,7 @@ class PHP2CommandLineSingleton
         //show command ...
         //we use && here because this means that the second part only runs
         //if the changedir works.
-        $command = 'cd '.$currentDir.' && '.$command;
+        $this->colourPrint('cd '.$currentDir, 'run');
         $commandsExploded = explode('&&', $command);
         foreach ($commandsExploded as $commandInner) {
             $commandsExplodedInner = explode(';', $commandInner);
@@ -227,9 +228,11 @@ class PHP2CommandLineSingleton
 
         //run command ...
         if ($this->runImmediately || $alwaysRun) {
-            $outcome = exec($command.'  2>&1 ', $error, $return);
+            $beforeDir = getcwd();
+            chdir($currentDir);
+            $outcome = exec($command.'  2>&1 ', $returnDetails, $return);
             if ($return) {
-                $this->colourPrint($error, 'red');
+                $this->colourPrint($returnDetails, 'red');
                 if ($this->breakOnAllErrors) {
                     $this->endOutput();
                     $this->newLine(10);
@@ -240,21 +243,27 @@ class PHP2CommandLineSingleton
                 if ($outcome) {
                     $this->colourPrint($outcome, 'green');
                 }
-                if (is_array($error)) {
-                    foreach ($error as $line) {
+                if (is_array($returnDetails)) {
+                    foreach ($returnDetails as $line) {
                         $this->colourPrint($line, 'blue');
                     }
                 } else {
-                    $this->colourPrint($error, 'blue');
+                    $this->colourPrint($returnDetails, 'blue');
                 }
                 $this->colourPrint('✔✔✔', 'green', 1);
                 $this->newLine(2);
             }
+            chdir($beforeDir);
         }
         if ($this->isHTML()) {
             ob_flush();
             flush();
         }
+        if(! is_array($returnDetails)) {
+            $returnDetails = [$returnDetails];
+        }
+
+        return $returnDetails;
     }
 
 
@@ -372,6 +381,10 @@ class PHP2CommandLineSingleton
     protected function writeToFile($fileName, $data, $newLineCount)
     {
         if (! file_exists($fileName)) {
+            $folder = dirname($fileName);
+            if(! file_exists($folder)) {
+                mkdir($folder, 0777, true);
+            }
             file_put_contents($fileName, date('Y-m-d h:i'));
             file_put_contents($fileName, PHP_EOL.PHP_EOL, FILE_APPEND | LOCK_EX);
         } else {
