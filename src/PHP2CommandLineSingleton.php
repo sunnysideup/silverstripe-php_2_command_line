@@ -220,6 +220,7 @@ class PHP2CommandLineSingleton
         }
 
         //run command ...
+        $returnDetails = '';
         if ($this->runImmediately || $alwaysRun) {
             $beforeDir = getcwd();
             chdir($currentDir);
@@ -262,14 +263,14 @@ class PHP2CommandLineSingleton
     /**
      * echos out the resulting string after applying all parameters
      * @todo add the ability to use colours like "warning", "notice", "error"
-     * @param  [type]  $mixedVar     [description]
+     * @param  mixed   $mixedVar
      * @param  string  $colour       that you wish the output to displayed as
      * @param  integer $newLineCount amount of empty lines you want to appear before the next text is printed
      */
     public function colourPrint($mixedVar, $colour = 'dark_gray', $newLineCount = 1)
     {
         $alwaysPrint = $this->isError($colour);
-
+        $mixedVarAsString = print_r($mixedVar, 1);
         if ($this->isCommandLine()) {
             $colour = $this->getColour($colour, false);
             $outputString = "\033[" . $colour . 'm' . $mixedVarAsString . "\033[0m";
@@ -283,20 +284,19 @@ class PHP2CommandLineSingleton
                 $newLineCount--;
                 $el = 'div';
             }
-            $outputString = '<' . $el . ' ' . $colourString . '>' . $mixedmixedVarAsString . '</' . $el . '>';
+            $outputString = '<' . $el . ' ' . $colourString . '>' . $mixedVarAsString . '</' . $el . '>';
         }
         if ($newLineCount) {
             $this->newLine($newLineCount);
         }
         if ($this->verbose || $alwaysPrint) {
-            $this->writeToLog($mixedVar, $newLineCount);
+            $this->writeToLog($mixedVarAsString, $newLineCount);
             echo $outputString;
         }
     }
 
-    protected function writeToLog($mixedVar, int $newLineCount)
+    protected function writeToLog($mixedVarAsString, int $newLineCount)
     {
-        $mixedVarAsString = print_r($mixedVar, 1);
         $logFileLocation = $this->getLogFileLocation();
         //write to log
         if ($logFileLocation) {
