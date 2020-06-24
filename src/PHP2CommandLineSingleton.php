@@ -42,6 +42,18 @@ class PHP2CommandLineSingleton
      */
     protected $breakOnAllErrors = false;
 
+    /**
+     * should the script stop if any error occurs?
+     * @var bool
+     */
+    protected $lastError = false;
+
+    /**
+     * should we output at all?
+     * @var bool
+     */
+    protected $verbose = true;
+
     private static $_singleton;
 
     /**
@@ -62,7 +74,7 @@ class PHP2CommandLineSingleton
         $this->endOutput();
     }
 
-    public static function create(?string $logFileLocation = '')
+    public static function create(?string $logFileLocation = '') : self
     {
         if (self::$_singleton === null) {
             $className = get_called_class();
@@ -87,7 +99,7 @@ class PHP2CommandLineSingleton
      * @param string $s file location
      * @return PHP2CommandLineSingleton
      */
-    public function setLogFileLocation(string $s)
+    public function setLogFileLocation(string $s) : self
     {
         $this->logFileLocation = $s;
 
@@ -98,7 +110,7 @@ class PHP2CommandLineSingleton
      * See where the location of the log file for writing all the printed output to is
      * @return string
      */
-    public function getLogFileLocation()
+    public function getLogFileLocation() : string
     {
         return $this->logFileLocation;
     }
@@ -108,7 +120,7 @@ class PHP2CommandLineSingleton
      * @param string $s file location
      * @return PHP2CommandLineSingleton
      */
-    public function setKeyNotesFileLocation(string $s)
+    public function setKeyNotesFileLocation(string $s) : self
     {
         $this->keyNotesFileLocation = $s;
 
@@ -119,7 +131,7 @@ class PHP2CommandLineSingleton
      * set key notes files location
      * @return string file location
      */
-    public function getKeyNotesFileLocation()
+    public function getKeyNotesFileLocation() : string
     {
         return $this->keyNotesFileLocation;
     }
@@ -129,7 +141,7 @@ class PHP2CommandLineSingleton
      * @param bool $b
      * @return PHP2CommandLineSingleton
      */
-    public function setMakeKeyNotes(bool $b)
+    public function setMakeKeyNotes(bool $b) : self
     {
         $this->makeKeyNotes = $b;
 
@@ -140,17 +152,18 @@ class PHP2CommandLineSingleton
      * @param bool $b
      * @return PHP2CommandLineSingleton
      */
-    public function setRunImmediately($b)
+    public function setRunImmediately(bool $b): self
     {
         $this->runImmediately = $b;
 
         return $this;
     }
 
+
     /**
      * @return bool
      */
-    public function getRunImmediately()
+    public function getRunImmediately() : bool
     {
         return $this->runImmediately;
     }
@@ -158,7 +171,7 @@ class PHP2CommandLineSingleton
     /**
      * @return bool
      */
-    public function getBreakOnAllErrors()
+    public function getBreakOnAllErrors() : bool
     {
         return $this->breakOnAllErrors;
     }
@@ -168,7 +181,7 @@ class PHP2CommandLineSingleton
      *
      * @return PHP2CommandLineSingleton
      */
-    public function setBreakOnAllErrors($b)
+    public function setBreakOnAllErrors($b) : self
     {
         $this->breakOnAllErrors = $b;
 
