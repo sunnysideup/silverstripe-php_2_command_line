@@ -111,6 +111,21 @@ class PHP2CommandLineSingleton
 
     /**
      *
+     * @var bool
+     */
+    protected $hasError = false;
+
+    /**
+     * set key notes files location
+     * @return bool
+     */
+    public function getHasError() : bool
+    {
+        return $this->hasError;
+    }
+
+    /**
+     *
      * If false then will output HTML version of a batch file for running this module
      * If true runs the module immediately
      * @var null|bool
@@ -193,6 +208,7 @@ class PHP2CommandLineSingleton
      */
     public function execMe($currentDir, $command, $comment, $alwaysRun = false)
     {
+        $this->hasError = false;
         if ($this->runImmediately === null) {
             if ($this->isCommandLine()) {
                 $this->runImmediately = true;
@@ -230,6 +246,7 @@ class PHP2CommandLineSingleton
             $outcome = exec($command.'  2>&1 ', $error, $return);
             if ($return) {
                 $this->colourPrint($error, 'red');
+                $this->hasError = true;
                 if ($this->breakOnAllErrors) {
                     $this->endOutput();
                     $this->newLine(10);
