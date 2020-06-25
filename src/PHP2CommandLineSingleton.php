@@ -181,7 +181,7 @@ class PHP2CommandLineSingleton
      * set key notes files location
      * @return self
      */
-    public function setErrogMessage(string $s): self
+    public function setErrorMessage(string $s): self
     {
         $this->errorMessage = $s;
 
