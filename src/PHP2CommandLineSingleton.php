@@ -44,15 +44,26 @@ class PHP2CommandLineSingleton
 
     /**
      * should the script stop if any error occurs?
-     * @var bool
+     * @var string
      */
-    protected $lastError = false;
+    protected $lastError = '';
+
+    /**
+     * message that should show on error
+     * @var string
+     */
+    protected $errorMessage = '';
 
     /**
      * should we output at all?
      * @var bool
      */
     protected $verbose = true;
+
+    /**
+     * @var bool
+     */
+    protected $hasError = false;
 
     private static $_singleton;
 
@@ -77,7 +88,7 @@ class PHP2CommandLineSingleton
     public static function create(?string $logFileLocation = ''): self
     {
         if (self::$_singleton === null) {
-            $className = get_called_class();
+            $className = static::class;
             self::$_singleton = new $className($logFileLocation);
         }
 
@@ -149,28 +160,33 @@ class PHP2CommandLineSingleton
     }
 
     /**
-     *
-     * @var bool
-     */
-    protected $hasError = false;
-
-    /**
      * set key notes files location
      * @return bool
      */
-    public function getHasError() : bool
+    public function getHasError(): bool
     {
         return $this->hasError;
     }
 
     /**
-     *
-     * If false then will output HTML version of a batch file for running this module
-     * If true runs the module immediately
-     * @var null|bool
-     *
+     * set key notes files location
+     * @return string
      */
-    protected $runImmediately = null;
+    public function getLastError(): string
+    {
+        return $this->lastError;
+    }
+
+    /**
+     * set key notes files location
+     * @return self
+     */
+    public function setErrogMessage(string $s): self
+    {
+        $this->errorMessage = $s;
+
+        return $this;
+    }
 
     /**
      * @param bool $b
@@ -223,6 +239,7 @@ class PHP2CommandLineSingleton
     public function execMe(string $currentDir, string $command, string $comment, ?bool $alwaysRun = false, ?bool $verbose = true): array
     {
         $this->verbose = $verbose;
+        $this->hasError = false;
         if ($this->runImmediately === null) {
             if ($this->isCommandLine()) {
                 $this->runImmediately = true;
@@ -262,7 +279,10 @@ class PHP2CommandLineSingleton
             chdir($currentDir);
             $outcome = exec($command . '  2>&1 ', $returnDetails, $return);
             if ($return) {
+                $errorString = (string) print_r($returnDetails, 1);
+                $this->lastError = $errorString;
                 $this->colourPrint($returnDetails, 'red');
+                $this->colourPrint($this->errorMessage, 'red');
                 if ($this->breakOnAllErrors) {
                     $this->endOutput();
                     $this->newLine(10);
