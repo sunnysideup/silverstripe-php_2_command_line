@@ -95,6 +95,13 @@ class PHP2CommandLineSingleton
         return self::$_singleton;
     }
 
+    public static function commandExists(string $command) : bool
+    {
+        $return = shell_exec(sprintf("which %s", escapeshellarg($command)));
+
+        return ! empty($return);
+    }
+
     /**
      * Deletes the current singleton by setting it null
      */
@@ -276,6 +283,10 @@ class PHP2CommandLineSingleton
         $returnDetails = '';
         if ($this->runImmediately || $alwaysRun) {
             $beforeDir = getcwd();
+            if(! file_exists($currentDir)) {
+                debug_backtrace();
+                user_error('Could not find '.$currentDir, E_USER_ERROR);
+            }
             chdir($currentDir);
             $outcome = exec($command . '  2>&1 ', $returnDetails, $return);
             if ($return) {
