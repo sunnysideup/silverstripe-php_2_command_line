@@ -559,7 +559,7 @@ class PHP2CommandLineSingleton
             case 'dark_gray':
             case 'notice':
             default:
-                $colour = '1;30';
+                $colour = '1;32';
                 $htmlColour = '#555';
         }
         if ($usehtmlColour) {
