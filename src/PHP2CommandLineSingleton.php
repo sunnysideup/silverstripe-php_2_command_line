@@ -515,9 +515,9 @@ class PHP2CommandLineSingleton
             case 'green':
                 $colour = '0;32';
                 break;
-            case 'light_green':
-                $colour = '1;32';
-                break;
+            case 'dark_gray':
+                $colour = '1;30';
+                $htmlColour = '#555';
             case 'cyan':
                 $colour = '0;36';
                 break;
@@ -556,11 +556,11 @@ class PHP2CommandLineSingleton
             case 'white':
                 $colour = '1;37';
                 break;
-            case 'dark_gray':
+            case 'light_green':
             case 'notice':
             default:
                 $colour = '1;32';
-                $htmlColour = '#555';
+                $htmlColour = 'light-green';
         }
         if ($usehtmlColour) {
             return $htmlColour;
